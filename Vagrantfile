@@ -5,11 +5,13 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  os = "bento/ubuntu-18.04"
+  #os = "bento/ubuntu-18.04"
+  os = "ubuntu/bionic64"
   net_ip = "192.168.50"
 
   config.vm.define :master, primary: true do |master_config|
     master_config.vm.provider "virtualbox" do |vb|
+        vb.linked_clone = true
         vb.memory = "2048"
         vb.cpus = 1
         vb.name = "master"
@@ -18,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     master_config.vm.box = "#{os}"
     master_config.vm.host_name = 'saltmaster.local'
     master_config.vm.network "private_network", ip: "#{net_ip}.10"
-    master_config.vm.synced_folder "saltstack/salt/", "/srv/salt"
+    master_config.vm.synced_folder "saltstack/states/", "/srv/states"
     master_config.vm.synced_folder "saltstack/pillar/", "/srv/pillar"
 
     master_config.vm.provision :salt do |salt|
@@ -29,7 +31,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       salt.minion_pub = "saltstack/keys/master_minion.pub"
       salt.seed_master = {
                           "minion1" => "saltstack/keys/minion1.pub",
-                          "minion2" => "saltstack/keys/minion2.pub"
+                          "minion2" => "saltstack/keys/minion2.pub",
+                          "minion3" => "saltstack/keys/minion3.pub",
+                          "minion4" => "saltstack/keys/minion4.pub"
                          }
 
       salt.install_type = "stable"
@@ -45,9 +49,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   [
     ["minion1",    "#{net_ip}.11",    "1024",    os ],
     ["minion2",    "#{net_ip}.12",    "1024",    os ],
+    ["minion3",    "#{net_ip}.13",    "1024",    os ],
+    ["minion4",    "#{net_ip}.14",    "1024",    os ],
   ].each do |vmname,ip,mem,os|
     config.vm.define "#{vmname}" do |minion_config|
       minion_config.vm.provider "virtualbox" do |vb|
+          vb.linked_clone = true
           vb.memory = "#{mem}"
           vb.cpus = 1
           vb.name = "#{vmname}"

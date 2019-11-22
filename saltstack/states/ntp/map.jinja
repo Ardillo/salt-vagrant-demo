@@ -1,0 +1,5 @@
+{% set ntp = salt['pillar.get']('ntp') %}
+{% if not ntp %}
+  {{ salt.test.exception("ntp pillar data missing!") }}
+{% endif %}
+

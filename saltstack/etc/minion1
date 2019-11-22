@@ -225,6 +225,11 @@ id: minion1
 # often lower this value
 #loop_interval: 60
 
+schedule:
+  highstate:
+    function: state.highstate
+    minutes: 1
+
 # The grains_refresh_every setting allows for a minion to periodically check
 # its grains to see if they have changed and, if so, to inform the master
 # of the new grains. This operation is moderately expensive, therefore
